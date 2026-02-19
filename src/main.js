@@ -177,6 +177,7 @@ function updateUI(state) {
   if (progressFill && progressLabel) {
     progressFill.style.width = `${progressPct}%`
     progressFill.style.transition = state.isRunning ? 'width 1s linear' : 'width 0.2s ease'
+    progressFill.classList.toggle('slot-progress__fill--growing', progressPct > 2)
     const slotTotal = state.currentMode === 'work' ? '25:00' : '5:00'
     progressLabel.textContent = `${formatTime(elapsed)} / ${slotTotal}`
     const progressEl = document.querySelector('.slot-progress')
