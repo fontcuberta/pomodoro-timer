@@ -1,26 +1,27 @@
-/* Design tokens - dark theme */
+/* Design tokens - Tomato & Sage palette */
 :root {
   color-scheme: dark;
-  /* Base: warm stone */
-  --color-bg: #1a1814;
-  --color-bg-soft: #252220;
-  --color-surface: #2d2a26;
-  --color-surface-elevated: #3d3935;
-  --color-text: #f5f0e8;
-  --color-text-muted: #9a958b;
-  /* Work: amber/terracotta */
-  --color-work-bg: #fef3c7;
-  --color-work-text: #78350f;
-  --color-work-accent: #d97706;
-  --color-work-border: #fcd34d;
-  /* Break: sage/teal */
-  --color-break-bg: #ccfbf1;
-  --color-break-text: #0f766e;
-  --color-break-accent: #0d9488;
-  --color-break-border: #5eead4;
-  --color-focus: #67e8f9;
-  --color-accent: #c4b5fd;
-  --color-border: #45403a;
+  /* Base */
+  --color-bg: #181210;
+  --color-bg-soft: #221a18;
+  --color-surface: #2a2320;
+  --color-surface-elevated: #3a322e;
+  --color-text: #f5ede8;
+  --color-text-muted: #9a8f88;
+  /* Work: tomato red */
+  --color-work-bg: #fdf0ed;
+  --color-work-text: #8b3a34;
+  --color-work-accent: #b54a42;
+  --color-work-hover: #c85a54;
+  --color-work-border: #e8b4ad;
+  /* Break: sage */
+  --color-break-bg: #e8f5f1;
+  --color-break-text: #1a5c52;
+  --color-break-accent: #2d9d8a;
+  --color-break-border: #7dd3c4;
+  --color-focus: #7ec8e3;
+  --color-accent: #c9a0dc;
+  --color-border: #453c38;
   /* Spacing */
   --space-xs: 0.25rem;
   --space-sm: 0.5rem;
@@ -97,7 +98,7 @@ a:hover {
 
 #app {
   width: 100%;
-  max-width: 900px;
+  max-width: 100%;
   margin: 0 auto;
   padding: var(--space-2xl) var(--space-lg);
   text-align: center;
@@ -106,6 +107,14 @@ a:hover {
 @media (min-width: 640px) {
   #app {
     padding: var(--space-2xl) var(--space-2xl);
+    max-width: 1200px;
+  }
+}
+
+@media (min-width: 1024px) {
+  #app {
+    padding: var(--space-3xl) var(--space-2xl);
+    max-width: 1400px;
   }
 }
 
@@ -114,7 +123,7 @@ a:hover {
   width: 100%;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   gap: var(--space-xl);
 }
 
@@ -158,19 +167,32 @@ a:hover {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
   transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
   animation: fade-in 0.4s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
 
 @media (min-width: 640px) {
   .card {
-    max-width: 580px;
+    max-width: 680px;
+    margin: 0 auto;
     padding: var(--space-3xl);
   }
 }
 
-@media (min-width: 900px) {
+@media (min-width: 1024px) {
   .card {
-    max-width: 720px;
+    max-width: 100%;
+    margin: 0;
     padding: var(--space-3xl) var(--space-3xl);
+    display: grid;
+    grid-template-columns: 1fr minmax(320px, 400px);
+    grid-template-rows: auto minmax(280px, 1fr);
+    grid-template-areas:
+      "profile profile"
+      "timer facts";
+    gap: 0 var(--space-3xl);
+    align-items: start;
   }
 }
 
@@ -197,6 +219,15 @@ a:hover {
   }
 }
 
+@media (min-width: 1024px) {
+  .pomodoro-timer {
+    grid-area: timer;
+    padding: 0;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
 .pomodoro-timer__header {
   display: flex;
   justify-content: center;
@@ -216,6 +247,12 @@ a:hover {
   line-height: 1.2;
   transition: color 0.3s ease;
   letter-spacing: 0.02em;
+}
+
+@media (min-width: 1024px) {
+  .timer-display {
+    font-size: clamp(4rem, 8vw, 6rem);
+  }
 }
 
 .timer-display.timer-display--switch {
@@ -316,7 +353,7 @@ a:hover {
 }
 
 .btn--primary:hover {
-  background: linear-gradient(135deg, #f97316, #ea580c);
+  background: linear-gradient(135deg, var(--color-work-hover), var(--color-work-accent));
   color: white;
 }
 
@@ -364,6 +401,14 @@ a:hover {
   margin-bottom: var(--space-xl);
   border-bottom: 1px solid var(--color-border);
   text-align: center;
+}
+
+@media (min-width: 1024px) {
+  .user-profile {
+    grid-area: profile;
+    margin-bottom: var(--space-2xl);
+    padding-bottom: var(--space-2xl);
+  }
 }
 
 .user-profile__avatar-section {
@@ -495,6 +540,19 @@ a:hover {
   gap: var(--space-md);
 }
 
+@media (min-width: 1024px) {
+  .fun-facts {
+    grid-area: facts;
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+    border-left: 1px solid var(--color-border);
+    padding-left: var(--space-3xl);
+    align-items: stretch;
+    text-align: left;
+  }
+}
+
 .fun-facts__heading {
   font-size: var(--text-sm);
   font-weight: 500;
@@ -516,6 +574,16 @@ a:hover {
   max-width: 540px;
   min-height: 3.5em;
   border-left: 4px solid var(--color-accent);
+}
+
+@media (min-width: 1024px) {
+  .fun-facts .btn--ghost {
+    align-self: flex-start;
+  }
+
+  .fun-fact {
+    max-width: none;
+  }
 }
 
 .fun-fact--animate {
