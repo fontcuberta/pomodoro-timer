@@ -3,25 +3,8 @@ import { createTimer, formatTime } from './timer.js'
 import { getRandomFact } from './facts.js'
 import { AVATARS } from './avatars.js'
 
-const THEME_KEY = 'pomodoro-theme'
 const USERNAME_KEY = 'pomodoro-username'
 const AVATAR_KEY = 'pomodoro-avatar'
-
-function getPreferredTheme() {
-  const stored = localStorage.getItem(THEME_KEY)
-  if (stored === 'light' || stored === 'dark') return stored
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-}
-
-function setTheme(theme) {
-  document.documentElement.setAttribute('data-theme', theme)
-  localStorage.setItem(THEME_KEY, theme)
-  const btn = document.querySelector('#btn-theme')
-  if (btn) {
-    btn.setAttribute('aria-label', theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode')
-    btn.innerHTML = theme === 'dark' ? '☀️' : '🌙'
-  }
-}
 
 const MODE_LABELS = {
   work: '🍅 Work',
@@ -76,10 +59,6 @@ const initialAvatar = localStorage.getItem(AVATAR_KEY) || 'tomato'
 document.querySelector('#app').innerHTML = `
   <div class="app-wrapper">
     <div class="card">
-      <button id="btn-theme" type="button" class="btn-theme" aria-label="Switch to light mode">
-        ☀️
-      </button>
-
       <section class="user-profile">
         <div class="user-profile__avatar-section">
           <div id="avatar-display" class="avatar-display" aria-hidden="true">${(AVATARS.find((a) => a.id === initialAvatar) || AVATARS[0]).emoji}</div>
@@ -185,14 +164,6 @@ timer.onModeComplete(({ currentMode }) => {
 
 btnStartPause.addEventListener('click', () => timer.toggle())
 btnReset.addEventListener('click', () => timer.reset())
-
-document.querySelector('#btn-theme').addEventListener('click', () => {
-  const current = getPreferredTheme()
-  setTheme(current === 'dark' ? 'light' : 'dark')
-})
-
-// Apply saved or system theme
-setTheme(getPreferredTheme())
 
 // Initial render
 updateUI(timer.getState())
