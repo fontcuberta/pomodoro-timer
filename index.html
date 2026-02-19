@@ -7,8 +7,9 @@
         var theme = localStorage.getItem('pomodoro-theme');
         if (theme === 'light' || theme === 'dark') {
           document.documentElement.setAttribute('data-theme', theme);
-        } else if (window.matchMedia('(prefers-color-scheme: light)').matches) {
-          document.documentElement.setAttribute('data-theme', 'light');
+        } else {
+          document.documentElement.setAttribute('data-theme',
+            window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
         }
       })();
     </script>
@@ -17,7 +18,20 @@
     <title>Pomodoro Timer</title>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app">
+      <p>Loading…</p>
+      <p id="load-hint" style="display:none; margin-top:1em; font-size:0.875rem; color:var(--color-text-muted,#888);">
+        Stuck? Run <code>pnpm dev</code> in the project folder, then open the URL in your browser.
+      </p>
+    </div>
+    <noscript>Enable JavaScript to use the Pomodoro timer.</noscript>
     <script type="module" src="/src/main.js"></script>
+    <script>
+      setTimeout(function() {
+        if (document.getElementById('load-hint') && document.querySelector('.pomodoro-timer') === null) {
+          document.getElementById('load-hint').style.display = 'block';
+        }
+      }, 2000);
+    </script>
   </body>
 </html>
