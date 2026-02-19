@@ -146,6 +146,7 @@ a {
 
 a:hover {
   color: var(--color-accent);
+  filter: brightness(1.35);
 }
 
 #app {
@@ -197,8 +198,14 @@ a:hover {
   transition: color 0.2s ease;
 }
 
+.footer-link {
+  transition: color 0.2s ease, filter 0.2s ease, transform 0.2s ease;
+}
+
 .footer-link:hover {
   color: var(--color-focus);
+  filter: brightness(1.35);
+  transform: scale(1.03);
 }
 
 .footer-logo {
@@ -374,7 +381,13 @@ a:hover {
   font-size: var(--text-xl);
   font-weight: 600;
   letter-spacing: 0.02em;
-  transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
+  transition: all 0.3s ease;
+  cursor: default;
+}
+
+.mode-indicator:hover {
+  transform: scale(1.05);
+  filter: brightness(1.2);
 }
 
 .mode-indicator.mode-indicator--switch {
@@ -390,18 +403,31 @@ a:hover {
   .mode-indicator.mode-indicator--switch {
     animation: none;
   }
+  .mode-indicator:hover {
+    transform: none;
+  }
 }
 
 .mode-indicator--work {
-  background-color: var(--color-work-bg);
-  color: var(--color-work-text);
-  border: 1px solid var(--color-work-border);
+  background: linear-gradient(135deg, #fef0ed 0%, #fcd5cf 50%, #f9b5ad 100%);
+  color: #8b2e28;
+  border: 2px solid #e8a098;
+  box-shadow: 0 4px 16px rgba(184, 74, 66, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.mode-indicator--work:hover {
+  box-shadow: 0 6px 24px rgba(184, 74, 66, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 
 .mode-indicator--break {
-  background-color: var(--color-break-bg);
-  color: var(--color-break-text);
-  border: 1px solid var(--color-break-border);
+  background: linear-gradient(135deg, #e8fdf7 0%, #b8f0e3 50%, #7ee8d8 100%);
+  color: #0f5c52;
+  border: 2px solid #5eead4;
+  box-shadow: 0 4px 16px rgba(45, 157, 138, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.mode-indicator--break:hover {
+  box-shadow: 0 6px 24px rgba(45, 157, 138, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 
 .timer-controls {
@@ -421,15 +447,16 @@ a:hover {
   border-radius: var(--radius-md);
   border: 1px solid transparent;
   cursor: pointer;
-  transition: border-color 0.2s, background-color 0.2s, transform 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .btn:hover {
-  transform: scale(1.03);
+  transform: scale(1.06);
+  filter: brightness(1.25);
 }
 
 .btn:active {
-  transform: scale(0.98);
+  transform: scale(0.97);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -451,8 +478,9 @@ a:hover {
 }
 
 .btn--primary:hover {
-  background: linear-gradient(135deg, var(--color-work-hover), var(--color-work-accent));
+  background: linear-gradient(135deg, #e85c54, var(--color-work-hover));
   color: white;
+  box-shadow: 0 4px 20px rgba(184, 74, 66, 0.5);
 }
 
 .btn--secondary {
@@ -462,8 +490,9 @@ a:hover {
 }
 
 .btn--secondary:hover {
-  border-color: var(--color-text-muted);
-  background-color: var(--color-border);
+  border-color: var(--color-accent);
+  background-color: rgba(74, 222, 128, 0.12);
+  box-shadow: 0 0 20px rgba(74, 222, 128, 0.2);
 }
 
 .btn--ghost {
@@ -472,8 +501,9 @@ a:hover {
 }
 
 .btn--ghost:hover {
-  background-color: var(--color-surface-elevated);
-  color: var(--color-text);
+  background-color: rgba(74, 222, 128, 0.15);
+  color: var(--color-accent);
+  box-shadow: 0 0 16px rgba(74, 222, 128, 0.25);
 }
 
 /* Visually hidden for screen readers */
@@ -536,15 +566,9 @@ a:hover {
 }
 
 .avatar-trigger:hover .avatar-display {
-  transform: scale(1.05);
-  border-color: var(--color-focus);
-  box-shadow: 0 6px 24px rgba(74, 222, 128, 0.35);
-}
-
-.avatar-trigger:focus-visible {
-  outline: 2px solid var(--color-focus);
-  outline-offset: 4px;
-  border-radius: var(--radius-full);
+  transform: scale(1.08);
+  border-color: var(--color-accent);
+  box-shadow: 0 8px 32px rgba(74, 222, 128, 0.5);
 }
 
 .avatar-trigger__badge {
@@ -559,6 +583,18 @@ a:hover {
   color: white;
   border-radius: var(--radius-full);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.avatar-trigger:hover .avatar-trigger__badge {
+  transform: scale(1.1);
+  filter: brightness(1.35);
+}
+
+.avatar-trigger:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 4px;
+  border-radius: var(--radius-full);
 }
 
 /* Avatar modal */
