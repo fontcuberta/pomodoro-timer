@@ -2,10 +2,12 @@ import './style.css'
 import { createTimer, formatTime } from './timer.js'
 import { getRandomFact } from './facts.js'
 import { AVATARS, getAvatarUrl } from './avatars.js'
+import { startBreakMusic, stopBreakMusic } from './breakMusic.js'
 
 const USERNAME_KEY = 'pomodoro-username'
 const AVATAR_KEY = 'pomodoro-avatar'
 const DURATION_PRESET_KEY = 'pomodoro-duration-preset'
+const BREAK_MUSIC_KEY = 'pomodoro-break-music'
 
 const DURATION_PRESETS = [
   { id: '25-5', work: 25 * 60, break: 5 * 60, label: '25 min / 5 min' },
@@ -80,10 +82,11 @@ const initialUsername = (localStorage.getItem(USERNAME_KEY) || '').replace(/"/g,
 const initialAvatar = localStorage.getItem(AVATAR_KEY) || 'tomato'
 const initialPresetId = localStorage.getItem(DURATION_PRESET_KEY) || '25-5'
 const initialPreset = DURATION_PRESETS.find((p) => p.id === initialPresetId) || DURATION_PRESETS[0]
+const initialBreakMusicOn = localStorage.getItem(BREAK_MUSIC_KEY) !== 'false'
 
-// Emoji rain – big 🍅 and 🌿 dropping from the sky
+// Emoji rain – tomatoes, plants & leaves dropping from the sky
 const tomatoRain = document.getElementById('tomato-rain')
-const EMOJI_RAIN = ['🍅', '🌿']
+const EMOJI_RAIN = ['🍅', '🪴', '🍃', '🌸', '🌿']
 const EMOJI_COUNT = 14
 for (let i = 0; i < EMOJI_COUNT; i++) {
   const span = document.createElement('span')
@@ -99,7 +102,8 @@ for (let i = 0; i < EMOJI_COUNT; i++) {
 document.querySelector('#app').innerHTML = `
   <div class="app-wrapper">
     <div class="card">
-      <section class="user-profile">
+      <section class="user-profile" data-tooltip="Rebrand on the fly! 👆 Click your face or name — they're yours to change anytime.">
+        <span class="user-profile__tooltip-hint" aria-hidden="true">🎨</span>
         <div class="user-profile__avatar-section">
           <button id="avatar-trigger" type="button" class="avatar-trigger" aria-haspopup="dialog" aria-label="Change avatar">
             <img id="avatar-display" class="avatar-display" src="${getAvatarUrl(AVATARS.find((a) => a.id === initialAvatar) || AVATARS[0])}" alt="" />
@@ -158,13 +162,17 @@ document.querySelector('#app').innerHTML = `
           <button id="btn-reset" type="button" class="btn btn--secondary">
             Reset
           </button>
+          <button id="btn-break-music" type="button" class="btn btn--icon" aria-pressed="${initialBreakMusicOn}" aria-label="Break music on/off" title="Break music on/off">
+            <span id="break-music-icon">${initialBreakMusicOn ? '🔊' : '🔇'}</span>
+          </button>
         </div>
       </main>
 
-      <section class="fun-facts">
+      <section class="fun-facts fun-facts--locked" aria-disabled="true">
         <h2 class="fun-facts__heading">Did you know?</h2>
         <p id="fun-fact" class="fun-fact" aria-live="polite"></p>
-        <button id="btn-next-fact" type="button" class="btn btn--ghost">Next fact</button>
+        <button id="btn-next-fact" type="button" class="btn fun-facts__btn">Next fact</button>
+        <div id="fun-facts-toast" class="fun-facts__toast" role="alert" aria-live="polite"></div>
       </section>
     </div>
     <footer class="app-footer">
@@ -220,6 +228,16 @@ function updateUI(state) {
     progressEl.className = `slot-progress slot-progress--${state.currentMode}`
   }
 
+  const funFactsSection = document.querySelector('.fun-facts')
+  if (funFactsSection) {
+    funFactsSection.classList.toggle('fun-facts--locked', state.currentMode === 'work')
+    funFactsSection.setAttribute('aria-disabled', state.currentMode === 'work' ? 'true' : 'false')
+  }
+
+  if (modeChanged && state.currentMode === 'work') {
+    stopBreakMusic()
+  }
+
   if (modeChanged) {
     previousMode = state.currentMode
     timerDisplay.classList.add('timer-display--switch')
@@ -242,17 +260,42 @@ function updateUI(state) {
 
 const timer = createTimer({ workDuration: initialPreset.work, breakDuration: initialPreset.break })
 
+let breakMusicOn = initialBreakMusicOn
+
 timer.onTick(updateUI)
 timer.onModeComplete(({ currentMode }) => {
   notifyModeComplete(currentMode)
+  if (currentMode === 'break') {
+    if (breakMusicOn) startBreakMusic()
+  } else {
+    stopBreakMusic()
+  }
 })
 
 btnStartPause.addEventListener('click', () => timer.toggle())
-btnReset.addEventListener('click', () => timer.reset())
+btnReset.addEventListener('click', () => {
+  stopBreakMusic()
+  timer.reset()
+})
+
+document.getElementById('btn-break-music').addEventListener('click', () => {
+  breakMusicOn = !breakMusicOn
+  localStorage.setItem(BREAK_MUSIC_KEY, breakMusicOn)
+  const icon = document.getElementById('break-music-icon')
+  const btn = document.getElementById('btn-break-music')
+  icon.textContent = breakMusicOn ? '🔊' : '🔇'
+  btn.setAttribute('aria-pressed', breakMusicOn)
+  if (!breakMusicOn) {
+    stopBreakMusic()
+  } else if (timer.getState().currentMode === 'break') {
+    startBreakMusic()
+  }
+})
 
 // Duration preset selector
 const durationPresetSelect = document.getElementById('duration-preset')
 durationPresetSelect.addEventListener('change', () => {
+  stopBreakMusic()
   const preset = DURATION_PRESETS.find((p) => p.id === durationPresetSelect.value) || DURATION_PRESETS[0]
   timer.setDurations(preset.work, preset.break)
   timer.reset()
@@ -327,7 +370,7 @@ document.addEventListener('keydown', (e) => {
 
 updateAvatarDisplay(initialAvatar)
 
-// Fun facts
+// Fun facts – available only during break
 let currentFactIndex = -1
 
 function showFact() {
@@ -339,5 +382,28 @@ function showFact() {
   el.addEventListener('animationend', () => el.classList.remove('fun-fact--animate'), { once: true })
 }
 
-document.getElementById('btn-next-fact').addEventListener('click', showFact)
+function showFactsLockedToast() {
+  const toast = document.getElementById('fun-facts-toast')
+  toast.textContent = 'Stay focused! Facts unlock during your break 🍵'
+  toast.classList.add('fun-facts__toast--visible')
+  setTimeout(() => toast.classList.remove('fun-facts__toast--visible'), 2500)
+}
+
+const btnNextFact = document.getElementById('btn-next-fact')
+btnNextFact.addEventListener('click', (e) => {
+  if (timer.getState().currentMode === 'work') {
+    e.preventDefault()
+    showFactsLockedToast()
+  } else {
+    showFact()
+  }
+})
+
+document.querySelector('.fun-facts').addEventListener('click', (e) => {
+  if (e.target.closest('button')) return
+  if (timer.getState().currentMode === 'work') {
+    showFactsLockedToast()
+  }
+})
+
 showFact()
