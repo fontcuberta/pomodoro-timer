@@ -454,6 +454,8 @@ a:hover {
   letter-spacing: 0.02em;
   font-variant-numeric: tabular-nums;
   text-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+  min-width: 5.5ch;
+  text-align: center;
 }
 
 @media (min-width: 1024px) {
