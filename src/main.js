@@ -102,7 +102,7 @@ for (let i = 0; i < EMOJI_COUNT; i++) {
 document.querySelector('#app').innerHTML = `
   <div class="app-wrapper">
     <div class="card">
-      <span class="card__hint" aria-hidden="true" data-tooltip="Rebrand on the fly! 👆 Click your face or name — they're yours to change anytime.">🎨</span>
+      <button type="button" class="card__hint" aria-label="Show hint" data-tooltip="Rebrand on the fly! 👆 Click your face or name — they're yours to change anytime.">Hint!</button>
       <section class="user-profile">
         <div class="user-profile__avatar-section">
           <button id="avatar-trigger" type="button" class="avatar-trigger" aria-haspopup="dialog" aria-label="Change avatar">

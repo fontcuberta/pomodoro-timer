@@ -679,11 +679,23 @@ a:hover {
   position: absolute;
   top: var(--space-md);
   right: var(--space-md);
-  font-size: 1.5rem;
-  opacity: 0.5;
-  pointer-events: none;
-  transition: opacity 0.2s ease;
+  padding: var(--space-xs) var(--space-sm);
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  background: transparent;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: help;
+  transition: opacity 0.2s ease, border-color 0.2s ease, color 0.2s ease;
   z-index: 5;
+}
+
+.card__hint:hover,
+.card__hint:focus-visible {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
 }
 
 .card__hint::before {
@@ -712,11 +724,8 @@ a:hover {
   z-index: 100;
 }
 
-.card:hover .card__hint {
-  opacity: 1;
-}
-
-.card:hover .card__hint::before {
+.card__hint:hover::before,
+.card__hint:focus-visible::before {
   opacity: 1;
   visibility: visible;
 }
