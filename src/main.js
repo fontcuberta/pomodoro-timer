@@ -81,16 +81,19 @@ const initialAvatar = localStorage.getItem(AVATAR_KEY) || 'tomato'
 const initialPresetId = localStorage.getItem(DURATION_PRESET_KEY) || '25-5'
 const initialPreset = DURATION_PRESETS.find((p) => p.id === initialPresetId) || DURATION_PRESETS[0]
 
-// Tomato rain background – big tomatoes smashing to the ground
+// Emoji rain – big 🍅 and 🌿 dropping from the sky
 const tomatoRain = document.getElementById('tomato-rain')
-const TOMATO_COUNT = 16
-for (let i = 0; i < TOMATO_COUNT; i++) {
-  const t = document.createElement('div')
-  t.className = 'tomato-rain__tomato'
-  t.style.setProperty('--delay', `${(i / TOMATO_COUNT) * 18}s`)
-  t.style.setProperty('--x', `${(i * 11) % 100}%`)
-  t.style.setProperty('--size', `${36 + (i % 10) * 4}px`)
-  tomatoRain.appendChild(t)
+const EMOJI_RAIN = ['🍅', '🌿']
+const EMOJI_COUNT = 14
+for (let i = 0; i < EMOJI_COUNT; i++) {
+  const span = document.createElement('span')
+  span.className = 'tomato-rain__emoji'
+  span.textContent = EMOJI_RAIN[i % EMOJI_RAIN.length]
+  span.style.setProperty('--delay', `${(i / EMOJI_COUNT) * 16}s`)
+  span.style.setProperty('--x', `${(i * 13) % 100}%`)
+  span.style.setProperty('--size', `${56 + (i % 7) * 14}px`)
+  span.style.setProperty('--wiggle-x', `${(i % 2 === 0 ? 1 : -1) * (12 + (i % 5) * 4)}px`)
+  tomatoRain.appendChild(span)
 }
 
 document.querySelector('#app').innerHTML = `

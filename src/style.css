@@ -89,7 +89,7 @@ body {
   position: relative;
 }
 
-/* Tomato rain background – big tomatoes dropping and smashing */
+/* Emoji rain – big 🍅 and 🌿 dropping from the sky */
 .tomato-rain {
   position: fixed;
   inset: 0;
@@ -98,68 +98,41 @@ body {
   z-index: 0;
 }
 
-.tomato-rain__tomato {
+.tomato-rain__emoji {
   position: absolute;
   left: var(--x, 0);
-  top: calc(-1 * var(--size, 40px));
-  width: var(--size, 40px);
-  height: var(--size, 40px);
-  /* Tomato body: round and plump like 🍅 emoji */
-  background:
-    radial-gradient(ellipse 40% 35% at 40% 35%, rgba(255, 255, 255, 0.4), transparent 65%),
-    radial-gradient(circle at 50% 50%, #ea6058 0%, #d04840 35%, #b53a34 70%, #962a26 100%);
-  border-radius: 50%;
-  box-shadow:
-    inset 2px 2px 4px rgba(255, 200, 180, 0.2),
-    inset -2px -3px 6px rgba(0, 0, 0, 0.35),
-    2px 4px 10px rgba(0, 0, 0, 0.25);
-  animation: tomato-smash 12s ease-in infinite;
+  top: calc(-1 * var(--size, 56px));
+  font-size: var(--size, 56px);
+  line-height: 1;
+  animation: emoji-drop 14s ease-in infinite;
   animation-delay: var(--delay, 0s);
-  opacity: 0.75;
+  opacity: 0.85;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
 }
 
-.tomato-rain__tomato::before {
-  content: "";
-  position: absolute;
-  top: -5px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 18%;
-  height: 24%;
-  background: linear-gradient(180deg, #4a8c3d 0%, #2d5a27 60%, #1e3d1a 100%);
-  border-radius: 2px 2px 4px 4px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-}
-
-
-@keyframes tomato-smash {
+@keyframes emoji-drop {
   0% {
-    transform: translate(0, 0) rotate(0deg) scale(1);
-    opacity: 0.72;
+    transform: translate(0, 0) rotate(0deg);
+    opacity: 0.85;
   }
   70% {
-    transform: translate(var(--wiggle-x, 0), calc(100vh + 80px)) rotate(360deg) scale(1);
-    opacity: 0.72;
+    transform: translate(var(--wiggle-x, 0), calc(100vh + 100px)) rotate(360deg);
+    opacity: 0.85;
   }
   85% {
-    transform: translate(var(--wiggle-x, 0), calc(100vh + 50px)) rotate(380deg) scale(1.02);
-    opacity: 0.8;
+    transform: translate(var(--wiggle-x, 0), calc(100vh + 60px)) rotate(400deg) scale(1.08);
+    opacity: 0.9;
   }
   100% {
-    transform: translate(var(--wiggle-x, 0), calc(100vh + 25px)) rotate(400deg) scale(1.55, 0.4);
-    opacity: 0.65;
+    transform: translate(var(--wiggle-x, 0), calc(100vh + 30px)) rotate(450deg) scale(1.15, 0.5);
+    opacity: 0.7;
   }
 }
 
-.tomato-rain__tomato:nth-child(4n+1) { --wiggle-x: 14px; }
-.tomato-rain__tomato:nth-child(4n+2) { --wiggle-x: -12px; }
-.tomato-rain__tomato:nth-child(4n+3) { --wiggle-x: 10px; }
-.tomato-rain__tomato:nth-child(4n)   { --wiggle-x: -8px; }
-
 @media (prefers-reduced-motion: reduce) {
-  .tomato-rain__tomato {
+  .tomato-rain__emoji {
     animation: none;
-    opacity: 0.2;
+    opacity: 0.25;
   }
 }
 
