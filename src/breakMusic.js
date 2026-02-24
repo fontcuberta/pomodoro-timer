@@ -137,21 +137,34 @@ function getPhraseDuration() {
   return melodyBeats * BEAT
 }
 
+export function unlockBreakMusic() {
+  try {
+    const ctx = getContext()
+    if (ctx.state === 'suspended') {
+      ctx.resume()
+    }
+  } catch {
+    // Audio unavailable
+  }
+}
+
 export function startBreakMusic() {
   try {
     const ctx = getContext()
-    if (ctx.state === 'suspended') ctx.resume()
-
     const phraseDur = getPhraseDuration()
 
     function scheduleLoop() {
-    const now = ctx.currentTime
-    playMelodyPhrase(now)
-    playBassPhrase(now)
+      const now = ctx.currentTime
+      playMelodyPhrase(now)
+      playBassPhrase(now)
       loopTimeoutId = setTimeout(scheduleLoop, phraseDur * 1000)
     }
 
-    scheduleLoop()
+    if (ctx.state === 'suspended') {
+      ctx.resume().then(() => scheduleLoop())
+    } else {
+      scheduleLoop()
+    }
   } catch {
     // Audio unavailable
   }

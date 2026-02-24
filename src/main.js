@@ -2,7 +2,7 @@ import './style.css'
 import { createTimer, formatTime } from './timer.js'
 import { getRandomFact } from './facts.js'
 import { AVATARS, getAvatarUrl } from './avatars.js'
-import { startBreakMusic, stopBreakMusic } from './breakMusic.js'
+import { startBreakMusic, stopBreakMusic, unlockBreakMusic } from './breakMusic.js'
 
 const USERNAME_KEY = 'pomodoro-username'
 const AVATAR_KEY = 'pomodoro-avatar'
@@ -272,29 +272,37 @@ timer.onModeComplete(({ currentMode }) => {
   }
 })
 
-btnStartPause.addEventListener('click', () => timer.toggle())
+btnStartPause.addEventListener('click', () => {
+  unlockBreakMusic()
+  timer.toggle()
+})
 btnReset.addEventListener('click', () => {
+  unlockBreakMusic()
   stopBreakMusic()
   timer.reset()
 })
 
-document.getElementById('btn-break-music').addEventListener('click', () => {
-  breakMusicOn = !breakMusicOn
-  localStorage.setItem(BREAK_MUSIC_KEY, breakMusicOn)
-  const icon = document.getElementById('break-music-icon')
-  const btn = document.getElementById('btn-break-music')
-  icon.textContent = breakMusicOn ? '🔊' : '🔇'
-  btn.setAttribute('aria-pressed', breakMusicOn)
-  if (!breakMusicOn) {
-    stopBreakMusic()
-  } else if (timer.getState().currentMode === 'break') {
-    startBreakMusic()
-  }
-})
+const btnBreakMusic = document.getElementById('btn-break-music')
+if (btnBreakMusic) {
+  btnBreakMusic.addEventListener('click', () => {
+    unlockBreakMusic()
+    breakMusicOn = !breakMusicOn
+    localStorage.setItem(BREAK_MUSIC_KEY, breakMusicOn)
+    const icon = document.getElementById('break-music-icon')
+    if (icon) icon.textContent = breakMusicOn ? '🔊' : '🔇'
+    btnBreakMusic.setAttribute('aria-pressed', breakMusicOn)
+    if (!breakMusicOn) {
+      stopBreakMusic()
+    } else if (timer.getState().currentMode === 'break') {
+      startBreakMusic()
+    }
+  })
+}
 
 // Duration preset selector
 const durationPresetSelect = document.getElementById('duration-preset')
 durationPresetSelect.addEventListener('change', () => {
+  unlockBreakMusic()
   stopBreakMusic()
   const preset = DURATION_PRESETS.find((p) => p.id === durationPresetSelect.value) || DURATION_PRESETS[0]
   timer.setDurations(preset.work, preset.break)
