@@ -1,5 +1,5 @@
-export const WORK_DURATION = 25 * 60
-export const BREAK_DURATION = 5 * 60
+export const DEFAULT_WORK_DURATION = 25 * 60
+export const DEFAULT_BREAK_DURATION = 5 * 60
 
 /**
  * Format seconds as MM:SS
@@ -14,18 +14,23 @@ export function formatTime(seconds) {
 
 /**
  * Create a Pomodoro timer instance.
+ * @param {{ workDuration?: number; breakDuration?: number }} [options]
  * @returns {{
  *   start: () => void
  *   pause: () => void
  *   toggle: () => void
  *   reset: () => void
- *   onTick: (callback: (state: { timeRemaining: number; isRunning: boolean; currentMode: 'work' | 'break' }) => void) => void
- *   onModeComplete: (callback: (state: { timeRemaining: number; currentMode: 'work' | 'break' }) => void) => void
+ *   setDurations: (work: number, break: number) => void
+ *   getDurations: () => { work: number; break: number }
+ *   onTick: (callback) => void
+ *   onModeComplete: (callback) => void
  *   getState: () => { timeRemaining: number; isRunning: boolean; currentMode: 'work' | 'break' }
  * }}
  */
-export function createTimer() {
-  let timeRemaining = WORK_DURATION
+export function createTimer(options = {}) {
+  let workDuration = options.workDuration ?? DEFAULT_WORK_DURATION
+  let breakDuration = options.breakDuration ?? DEFAULT_BREAK_DURATION
+  let timeRemaining = workDuration
   let isRunning = false
   let currentMode = 'work'
   let intervalId = null
@@ -33,7 +38,16 @@ export function createTimer() {
   let onModeCompleteCallback = null
 
   function getDurationForMode(mode) {
-    return mode === 'work' ? WORK_DURATION : BREAK_DURATION
+    return mode === 'work' ? workDuration : breakDuration
+  }
+
+  function setDurations(work, breakDur) {
+    workDuration = Math.max(1, work)
+    breakDuration = Math.max(1, breakDur)
+  }
+
+  function getDurations() {
+    return { work: workDuration, break: breakDuration }
   }
 
   function tick() {
@@ -101,6 +115,8 @@ export function createTimer() {
     pause,
     toggle,
     reset,
+    setDurations,
+    getDurations,
     onTick,
     onModeComplete,
     getState,

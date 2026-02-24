@@ -1,10 +1,18 @@
 import './style.css'
-import { createTimer, formatTime, WORK_DURATION, BREAK_DURATION } from './timer.js'
+import { createTimer, formatTime } from './timer.js'
 import { getRandomFact } from './facts.js'
 import { AVATARS, getAvatarUrl } from './avatars.js'
 
 const USERNAME_KEY = 'pomodoro-username'
 const AVATAR_KEY = 'pomodoro-avatar'
+const DURATION_PRESET_KEY = 'pomodoro-duration-preset'
+
+const DURATION_PRESETS = [
+  { id: '25-5', work: 25 * 60, break: 5 * 60, label: '25 min / 5 min' },
+  { id: '5-1', work: 5 * 60, break: 1 * 60, label: '5 min / 1 min' },
+  { id: '10-5', work: 10 * 60, break: 5 * 60, label: '10 min / 5 min' },
+  { id: '10s-5s', work: 10, break: 5, label: '10 sec / 5 sec' },
+]
 
 const MODE_LABELS = {
   work: 'Work',
@@ -13,18 +21,33 @@ const MODE_LABELS = {
 
 function playCompletionSound() {
   try {
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)()
-    const oscillator = audioContext.createOscillator()
-    const gainNode = audioContext.createGain()
-
-    oscillator.connect(gainNode)
-    gainNode.connect(audioContext.destination)
-    oscillator.frequency.value = 880
-    oscillator.type = 'sine'
-    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime)
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3)
-    oscillator.start(audioContext.currentTime)
-    oscillator.stop(audioContext.currentTime + 0.3)
+    const ctx = new (window.AudioContext || window.webkitAudioContext)()
+    const t0 = ctx.currentTime
+    // Low thud – burger/tomato hitting the ground
+    const thud = ctx.createOscillator()
+    const thudGain = ctx.createGain()
+    thud.type = 'sine'
+    thud.frequency.value = 55
+    thud.connect(thudGain)
+    thudGain.connect(ctx.destination)
+    thudGain.gain.setValueAtTime(0, t0)
+    thudGain.gain.linearRampToValueAtTime(0.45, t0 + 0.02)
+    thudGain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.25)
+    thud.start(t0)
+    thud.stop(t0 + 0.3)
+    // Squish layer – wet splat
+    const splat = ctx.createOscillator()
+    const splatGain = ctx.createGain()
+    splat.type = 'triangle'
+    splat.frequency.setValueAtTime(180, t0)
+    splat.frequency.exponentialRampToValueAtTime(60, t0 + 0.15)
+    splat.connect(splatGain)
+    splatGain.connect(ctx.destination)
+    splatGain.gain.setValueAtTime(0, t0)
+    splatGain.gain.linearRampToValueAtTime(0.2, t0 + 0.01)
+    splatGain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.12)
+    splat.start(t0)
+    splat.stop(t0 + 0.15)
   } catch {
     // Audio not supported or blocked
   }
@@ -55,16 +78,18 @@ function notifyModeComplete(mode) {
 
 const initialUsername = (localStorage.getItem(USERNAME_KEY) || '').replace(/"/g, '&quot;')
 const initialAvatar = localStorage.getItem(AVATAR_KEY) || 'tomato'
+const initialPresetId = localStorage.getItem(DURATION_PRESET_KEY) || '25-5'
+const initialPreset = DURATION_PRESETS.find((p) => p.id === initialPresetId) || DURATION_PRESETS[0]
 
-// Tomato rain background
+// Tomato rain background – big tomatoes smashing to the ground
 const tomatoRain = document.getElementById('tomato-rain')
-const TOMATO_COUNT = 24
+const TOMATO_COUNT = 16
 for (let i = 0; i < TOMATO_COUNT; i++) {
   const t = document.createElement('div')
   t.className = 'tomato-rain__tomato'
-  t.style.setProperty('--delay', `${(i / TOMATO_COUNT) * 20}s`)
-  t.style.setProperty('--x', `${(i * 7) % 100}%`)
-  t.style.setProperty('--size', `${12 + (i % 8)}px`)
+  t.style.setProperty('--delay', `${(i / TOMATO_COUNT) * 18}s`)
+  t.style.setProperty('--x', `${(i * 11) % 100}%`)
+  t.style.setProperty('--size', `${36 + (i % 10) * 4}px`)
   tomatoRain.appendChild(t)
 }
 
@@ -101,6 +126,12 @@ document.querySelector('#app').innerHTML = `
       </section>
 
       <main class="pomodoro-timer" role="application" aria-label="Pomodoro timer">
+        <div class="duration-presets">
+          <label for="duration-preset" class="duration-presets__label">Work / Break</label>
+          <select id="duration-preset" class="duration-presets__select" aria-label="Select work and break duration">
+            ${DURATION_PRESETS.map((p) => `<option value="${p.id}" ${p.id === initialPresetId ? 'selected' : ''}>${p.label}</option>`).join('')}
+          </select>
+        </div>
         <div class="pomodoro-timer__header">
           <span id="mode-indicator" class="mode-indicator mode-indicator--work" aria-live="polite">
             Work
@@ -156,7 +187,8 @@ function formatDuration(seconds) {
 let previousMode = 'work'
 
 function getSlotDuration(mode) {
-  return mode === 'work' ? WORK_DURATION : BREAK_DURATION
+  const { work, break: br } = timer.getDurations()
+  return mode === 'work' ? work : br
 }
 
 function updateUI(state) {
@@ -178,8 +210,8 @@ function updateUI(state) {
     progressFill.style.width = `${progressPct}%`
     progressFill.style.transition = state.isRunning ? 'width 1s linear' : 'width 0.2s ease'
     progressFill.classList.toggle('slot-progress__fill--growing', progressPct > 2)
-    const slotTotal = state.currentMode === 'work' ? '25:00' : '5:00'
-    progressLabel.textContent = `${formatTime(elapsed)} / ${slotTotal}`
+    const totalSecs = getSlotDuration(state.currentMode)
+    progressLabel.textContent = `${formatTime(elapsed)} / ${formatTime(totalSecs)}`
     const progressEl = document.querySelector('.slot-progress')
     progressEl.setAttribute('aria-valuenow', Math.round(progressPct))
     progressEl.className = `slot-progress slot-progress--${state.currentMode}`
@@ -205,7 +237,7 @@ function updateUI(state) {
   }
 }
 
-const timer = createTimer()
+const timer = createTimer({ workDuration: initialPreset.work, breakDuration: initialPreset.break })
 
 timer.onTick(updateUI)
 timer.onModeComplete(({ currentMode }) => {
@@ -214,6 +246,16 @@ timer.onModeComplete(({ currentMode }) => {
 
 btnStartPause.addEventListener('click', () => timer.toggle())
 btnReset.addEventListener('click', () => timer.reset())
+
+// Duration preset selector
+const durationPresetSelect = document.getElementById('duration-preset')
+durationPresetSelect.addEventListener('change', () => {
+  const preset = DURATION_PRESETS.find((p) => p.id === durationPresetSelect.value) || DURATION_PRESETS[0]
+  timer.setDurations(preset.work, preset.break)
+  timer.reset()
+  localStorage.setItem(DURATION_PRESET_KEY, preset.id)
+  updateUI(timer.getState())
+})
 
 // Initial render
 updateUI(timer.getState())
