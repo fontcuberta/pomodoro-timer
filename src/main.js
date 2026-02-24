@@ -102,8 +102,8 @@ for (let i = 0; i < EMOJI_COUNT; i++) {
 document.querySelector('#app').innerHTML = `
   <div class="app-wrapper">
     <div class="card">
-      <section class="user-profile" data-tooltip="Rebrand on the fly! 👆 Click your face or name — they're yours to change anytime.">
-        <span class="user-profile__tooltip-hint" aria-hidden="true">🎨</span>
+      <span class="card__hint" aria-hidden="true" data-tooltip="Rebrand on the fly! 👆 Click your face or name — they're yours to change anytime.">🎨</span>
+      <section class="user-profile">
         <div class="user-profile__avatar-section">
           <button id="avatar-trigger" type="button" class="avatar-trigger" aria-haspopup="dialog" aria-label="Change avatar">
             <img id="avatar-display" class="avatar-display" src="${getAvatarUrl(AVATARS.find((a) => a.id === initialAvatar) || AVATARS[0])}" alt="" />

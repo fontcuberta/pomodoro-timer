@@ -674,12 +674,24 @@ a:hover {
   padding-bottom: var(--space-2xl);
 }
 
-.user-profile::before {
+/* Card hint – top-right of card */
+.card__hint {
+  position: absolute;
+  top: var(--space-md);
+  right: var(--space-md);
+  font-size: 1.5rem;
+  opacity: 0.5;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 5;
+}
+
+.card__hint::before {
   content: attr(data-tooltip);
   position: absolute;
   bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%) translateY(-8px);
+  right: 0;
+  margin-bottom: 8px;
   padding: var(--space-sm) var(--space-md);
   background: var(--color-bg-soft);
   color: var(--color-text);
@@ -689,41 +701,22 @@ a:hover {
   border-radius: var(--radius-md);
   border: 1px solid var(--color-border);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-  white-space: nowrap;
-  max-width: 280px;
   white-space: normal;
-  text-align: center;
+  max-width: 260px;
+  text-align: right;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
   z-index: 100;
 }
 
-.user-profile:hover::before {
+.card:hover .card__hint {
+  opacity: 1;
+}
+
+.card:hover .card__hint::before {
   opacity: 1;
   visibility: visible;
-  transform: translateX(-50%) translateY(-12px);
-}
-
-.user-profile__tooltip-hint {
-  position: absolute;
-  top: 0;
-  right: 0;
-  font-size: var(--text-base);
-  opacity: 0.5;
-  pointer-events: none;
-  transition: opacity 0.2s ease;
-}
-
-@media (min-width: 640px) {
-  .user-profile__tooltip-hint {
-    top: -2px;
-    right: 8px;
-  }
-}
-
-.user-profile:hover .user-profile__tooltip-hint {
-  opacity: 1;
 }
 
 @media (min-width: 1024px) {
@@ -735,6 +728,7 @@ a:hover {
 }
 
 .user-profile__avatar-section {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
